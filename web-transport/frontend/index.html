@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en_US">
+<head>
+<title>WebTransport Demo</title>
+<script type="module">
+
+import {reactive, html} from 'https://esm.sh/@arrow-js/core';
+
+const state = reactive({
+  messages: [],
+});
+
+const appTemplate = html`
+<ul>
+${() => state.messages.map((message, index) => html`
+	<li>${message}</li>
+`.key(index))}
+</ul>
+<input type="text" id="input" />
+<button @click="${sendMessage}">Send</button>
+`;
+appTemplate(document.querySelector("#app"));
+
+const transport = new WebTransport("https://wsl.jph2.tech:8443/webtransport");
+let stream = null;
+
+await transport.ready;
+stream = await getBidirectionalStream();
+if (stream === null) {
+  console.log("server sent opened no streams");
+}
+readData(stream);
+
+async function getBidirectionalStream() {
+  const streams = transport.incomingBidirectionalStreams;
+  const reader = streams.getReader();
+  const { done, value } = await reader.read();
+  if (!done) {
+	  return value;
+  }
+}
+
+async function readData(stream) {
+  const reader = stream.readable.getReader();
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+		const message = new TextDecoder().decode(value);
+		state.messages.push(message);
+  }
+}
+
+async function sendMessage() {
+	// const input = document.querySelector("#input");
+	// const message = input.value;
+	// input.value = "";
+	const json = JSON.stringify(state);
+	const frame = new TextEncoder().encode(json);
+  const writer = stream.writable.getWriter();
+  writer.write(frame);
+}
+
+</script>
+</head>
+<body>
+<h1>WebTransport Demo</h1>
+<main id="app">
+</main>
+</body>
+</html>
