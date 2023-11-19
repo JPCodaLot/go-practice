@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"io"
+	"log"
 	"net/http"
 
 	"github.com/quic-go/quic-go/http3"
@@ -9,54 +10,96 @@ import (
 )
 
 const (
-	certFile = "certs/localhost.crt"
-	keyFile  = "certs/localhost.key"
+	certFile = "certs/jph2.tech.crt"
+	keyFile  = "certs/jph2.tech.key"
+)
+
+var webtransportServer = webtransport.Server{
+	H3: http3.Server{Addr: "wsl.jph2.tech:8443"},
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+var (
+	public  = make(chan []byte)
+	clients = make(map[chan<- []byte]bool)
 )
 
 func main() {
-	go frontendServer()
-	webtransportServer()
+	go serveFrontend()
+	serveWebtransport()
 }
 
-func webtransportServer() {
-	var webtrans = webtransport.Server{
-		H3: http3.Server{Addr: "wsl.jph2.tech:8443"},
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
-
-	http.HandleFunc("/webtransport", func(w http.ResponseWriter, r *http.Request) {
-		session, err := webtrans.Upgrade(w, r)
-		if err != nil {
-			fmt.Println("upgrading failed:", err)
-			return
-		}
-		stream, err := session.OpenStream()
-		if err != nil {
-			fmt.Println("opening stream:", err)
-			return
-		}
-		defer stream.Close()
-		fmt.Fprintf(stream, "Do you read me?")
-		var message = make([]byte, 80)
-		for {
-			n, _ := stream.Read(message)
-			stream.Write(message[:n])
-		}
-	})
-
-	err := webtrans.ListenAndServeTLS(certFile, keyFile)
+func serveWebtransport() {
+	go broadcaster()
+	http.HandleFunc("/webtransport", handleWTConn)
+	err := webtransportServer.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("webtransport:", err)
 	}
-	return
 }
 
-func frontendServer() {
+func handleWTConn(w http.ResponseWriter, r *http.Request) {
+	session, err := webtransportServer.Upgrade(w, r)
+	if err != nil {
+		log.Println("webtransport: upgrade:", err)
+		return
+	}
+	log.Printf("webtransport: opened session to %s\n", session.RemoteAddr())
+
+	stream, err := session.OpenStream()
+	if err != nil {
+		log.Println("webtransport:", err)
+		return
+	}
+	log.Printf("webtransport: opened stream %d\n", stream.StreamID())
+
+	outgoing := make(chan []byte)
+	go sendMessages(stream, outgoing)
+	outgoing <- []byte("You are connected to the server.")
+	clients[outgoing] = true
+	err = readMessages(stream, public, session.RemoteAddr().String())
+	if err != nil {
+		delete(clients, outgoing)
+		close(outgoing)
+		stream.CancelWrite(0)
+		log.Printf("webtransport: stream %d closed: %s\n", stream.StreamID(), err)
+	}
+}
+
+func readMessages(stream webtransport.Stream, public chan<- []byte, name string) error {
+	var message = make([]byte, 80)
+	for {
+		n, err := stream.Read(message)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		public <- []byte(name + ": " + string(message[:n]))
+		if err == io.EOF {
+			return err
+		}
+	}
+}
+
+func sendMessages(stream webtransport.Stream, outgoing <-chan []byte) {
+	for message := range outgoing {
+		stream.Write(message)
+	}
+}
+
+func broadcaster() {
+	for message := range public {
+		for client := range clients {
+			client <- message
+		}
+	}
+}
+
+func serveFrontend() {
 	http.Handle("/", http.FileServer(http.Dir("frontend")))
 	err := http.ListenAndServeTLS("wsl.jph2.tech:443", certFile, keyFile, nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("frontend:", err)
 	}
 }
