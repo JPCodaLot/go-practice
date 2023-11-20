@@ -15,7 +15,7 @@ const (
 )
 
 var webtransportServer = webtransport.Server{
-	H3: http3.Server{Addr: "wsl.jph2.tech:8443"},
+	H3: http3.Server{Addr: ":3122"},
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -33,7 +33,7 @@ func main() {
 
 func serveWebtransport() {
 	go broadcaster()
-	http.HandleFunc("/webtransport", handleWTConn)
+	http.HandleFunc("/chat", handleWTConn)
 	err := webtransportServer.ListenAndServeTLS(certFile, keyFile)
 	if err != nil {
 		log.Println("webtransport:", err)
@@ -98,7 +98,7 @@ func broadcaster() {
 
 func serveFrontend() {
 	http.Handle("/", http.FileServer(http.Dir("frontend")))
-	err := http.ListenAndServeTLS("wsl.jph2.tech:443", certFile, keyFile, nil)
+	err := http.ListenAndServe(":80", nil)
 	if err != nil {
 		log.Println("frontend:", err)
 	}

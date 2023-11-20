@@ -22,7 +22,7 @@ ${() => state.messages.map((message, index) => html`
 appTemplate(document.querySelector("#app"));
 
 let stream = null;
-const transport = new WebTransport("https://wsl.jph2.tech:8443/webtransport");
+const transport = new WebTransport("https://wt.jph2.tech:3122/chat");
 await transport.ready;
 stream = await getBidirectionalStream();
 if (stream === null) {
