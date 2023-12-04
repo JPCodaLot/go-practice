@@ -1,9 +1,9 @@
-module github.com/JPCodaLot/go-practice
+module jph2.tech/reptile-generator
 
-go 1.20
+go 1.21.1
 
 require (
-	github.com/go-sql-driver/mysql v1.7.1
+	github.com/julienschmidt/httprouter v1.3.0
 	github.com/redis/go-redis/v9 v9.3.0
 )
 
