@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"io"
 	"log"
 	"net/http"
@@ -14,8 +15,11 @@ const (
 	keyFile  = "certs/jph2.tech.key"
 )
 
-var webtransportServer = webtransport.Server{
-	H3: http3.Server{Addr: ":3122"},
+var webtransportConfig = webtransport.Server{
+	H3: http3.Server{
+		Addr:      ":3122",
+		TLSConfig: &tls.Config{},
+	},
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -28,20 +32,24 @@ var (
 
 func main() {
 	go serveFrontend()
+	go broadcaster()
 	serveWebtransport()
 }
 
 func serveWebtransport() {
-	go broadcaster()
-	http.HandleFunc("/chat", handleWTConn)
-	err := webtransportServer.ListenAndServeTLS(certFile, keyFile)
+	certificate, err := generateCertificate([]string{"wsl.jph2.tech", "chat.jph2.tech"})
+	if err != nil {
+		panic(err)
+	}
+	webtransportConfig.H3.TLSConfig.Certificates = []tls.Certificate{certificate}
+	err = webtransportConfig.ListenAndServe()
 	if err != nil {
 		log.Println("webtransport:", err)
 	}
 }
 
 func handleWTConn(w http.ResponseWriter, r *http.Request) {
-	session, err := webtransportServer.Upgrade(w, r)
+	session, err := webtransportConfig.Upgrade(w, r)
 	if err != nil {
 		log.Println("webtransport: upgrade:", err)
 		return
@@ -98,7 +106,8 @@ func broadcaster() {
 
 func serveFrontend() {
 	http.Handle("/", http.FileServer(http.Dir("frontend")))
-	err := http.ListenAndServe(":80", nil)
+	http.HandleFunc("/chat", handleWTConn)
+	err := http.ListenAndServeTLS(":443", certFile, keyFile, nil)
 	if err != nil {
 		log.Println("frontend:", err)
 	}
