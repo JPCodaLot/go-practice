@@ -1,0 +1,23 @@
+{
+  "name": "Reptile Generator",
+  "short_name": "RG",
+  "description": "Generate a random reptile everyday.",
+  "icons": [
+    {
+      "src": "/app/images/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/app/images/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#cdc",
+  "background_color": "#cdc",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay"],
+  "start_url": "/app/",
+  "orientation": "landscape"
+}

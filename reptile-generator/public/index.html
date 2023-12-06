@@ -2,11 +2,15 @@
 <html>
 <head>
 <title>Reptile Generator</title>
+<link rel="manifest" href="/app/site.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="/app/images/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/app/images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/app/images/favicon-16x16.png">
 <script>
 async function registerServiceWorker() {
 	if ("serviceWorker" in navigator) {
 		try {
-			const registration = await navigator.serviceWorker.register("/app/sw.js", {
+			const registration = await navigator.serviceWorker.register("/app/service-worker.js", {
 				scope: "/app/",
 			});
       if (registration.installing) {
@@ -29,6 +33,7 @@ body {
 	font-family: "Helvetica", Arial, sans-serif;
 	text-align: center;
 	color: #333;
+	background-color: #cdc;
 }
 .main {
 	max-width: 560px;

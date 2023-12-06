@@ -39,7 +39,7 @@ func buildRouter() *httprouter.Router {
 	// router.POST("/reptile/:slug", reptile.Create)
 	// router.GET("/reptiles", replyJSON(ReptileList))
 	// router.DELETE("/reptile/:slug", reptile.Delete)
-	router.ServeFiles("/app/*filepath", http.Dir("frontend"))
+	router.ServeFiles("/app/*filepath", http.Dir("public"))
 	return router
 }
 

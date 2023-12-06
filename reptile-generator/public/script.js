@@ -13,9 +13,9 @@ function reptileTemplate(reptile) {
 			<h2 class="title">${reptile.name}</h2>
 			<p class="subtitle">${reptile.latin_name}</p>
 			<img class="photo" src="${reptile.photo}" />
-			<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${reptile.video}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 		</aticle>`
 }
+// <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${reptile.video}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
 const appTemplate = html`
 <h1 class="title">Reptile Generator</h1>
