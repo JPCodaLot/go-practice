@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Custom Web Components</title>
+<script type="module" src="/assets/index.js"></script>
+<style>
+@keyframes pageload {
+  from {
+    opacity: 0;
+    visibility: visible;
+  }
+
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+body {
+  visibility: hidden;
+  animation-name: pageload;
+  animation-duration: 250ms;
+  animation-fill-mode: forwards;
+  font-family: 'Helvetica', 'Arial', sans-seif;
+  margin: 16px;
+  color: #333;
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
+  align-items: center;
+}
+h1 {
+  font-size: 1.8em;
+  color: #555;
+  font-weight: normal;
+  margin: 0px;
+}
+h3 {
+  font-size: 1.1em;
+  color: #555;
+  font-weight: normal;
+  margin: 0px;
+}
+p {
+  margin: 0px;
+}
+button {
+  border: 1px solid #bbb;
+  background-color: white;
+  border-radius: 4px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+button:hover {
+  background-color: #f0f0f0;
+}
+.controls {
+}
+.text-center {
+  text-align: center;
+}
+</style>
+</head>
+<body>
+  <div class="text-center">
+    <h1>Custom Web Components</h1>
+    <p> Learn more at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components">MDN Web Docs - Web Components</a></p>
+  </div>
+  <nav class="controls">
+    <button onclick="addCard()">New</button>
+    <button onclick="delCards()">Delete</button>
+    <button onclick="selAll()">Select all</button>
+    <button onclick="selNone()">Select none</button>
+  </nav>
+  <template id="card">
+    <jph2-card>
+      <h3 slot="header">Custom Card Element</h3>
+      <p> Learn more at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components">MDN Web Docs - Custom Card Element</a></p>
+      <button slot="footer">Action button</button>
+    </jph2-card>
+  </template>
+  <main id="items"><!-- content --></main>
+</body>
+<script>
+const cardTemplate = document.getElementById("card");
+const items = document.getElementById("items");
+
+function populate() {
+  for (let i = 0; i < 4; i++) {
+    addCard();
+  }
+}
+
+function addCard() {
+  items.appendChild(cardTemplate.content.cloneNode(true));
+}
+
+function delCards() {
+  const cards = items.querySelectorAll('jph2-card[selected=true]');
+  cards.forEach((card, index, list) => card.remove());
+}
+
+function selNone() {
+  const cards = items.querySelectorAll('jph2-card[selected=true]');
+  cards.forEach((card, index, list) => card.removeAttribute("selected"));
+}
+
+function selAll() {
+  const cards = items.querySelectorAll('jph2-card');
+  cards.forEach((card, index, list) => card.setAttribute("selected", true));
+}
+</script>
+</html>

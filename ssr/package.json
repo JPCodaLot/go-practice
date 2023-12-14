@@ -1,0 +1,10 @@
+{
+  "name": "go-ssr",
+  "module": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "bundle": "bun build src/index.js --outdir dist/",
+    "serve": "go run main.go",
+    "dev": "bun build src/index.js --outdir dist/ && go run main.go"
+  }
+}
