@@ -78,7 +78,7 @@ func (c *Component) Render(writer io.Writer) {
 var baseDoument []byte
 
 func ShowCardView(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	card := Component{"jph2-card", map[string]Element{
+	card := Component{"my-card", map[string]Element{
 		"header": {TagName: "h3", Content: "Hello from Go"},
 		"":       {TagName: "p", Content: "This component was populated on the server side."},
 		"footer": {TagName: "button", Content: "Action button"},

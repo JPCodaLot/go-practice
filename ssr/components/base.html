@@ -66,47 +66,21 @@ button:hover {
     <p> Learn more at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components">MDN Web Docs - Web Components</a></p>
   </div>
   <nav class="controls">
-    <button onclick="addCard()">New</button>
-    <button onclick="delCards()">Delete</button>
-    <button onclick="selAll()">Select all</button>
-    <button onclick="selNone()">Select none</button>
+    <button id="new">New</button>
+    <button id="delete">Delete</button>
+    <button id="select-all">Select all</button>
+    <button id="select-none">Select none</button>
   </nav>
-  <template id="card">
-    <jph2-card>
-      <h3 slot="header">Custom Card Element</h3>
-      <p> Learn more at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components">MDN Web Docs - Custom Card Element</a></p>
-      <button slot="footer">Action button</button>
-    </jph2-card>
-  </template>
-  <main id="items"><!-- content --></main>
+  <my-select id="select">
+    <template>
+      <my-card>
+        <h3 slot="header">Custom Card Element</h3>
+        <p> Learn more at <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_components">MDN Web Docs - Custom Card Element</a></p>
+        <button slot="footer">Action button</button>
+      </my-card>
+    </template>
+    <div id="items"></div>
+  </my-select>
+  <main><!-- content --></main>
 </body>
-<script>
-const cardTemplate = document.getElementById("card");
-const items = document.getElementById("items");
-
-function populate() {
-  for (let i = 0; i < 4; i++) {
-    addCard();
-  }
-}
-
-function addCard() {
-  items.appendChild(cardTemplate.content.cloneNode(true));
-}
-
-function delCards() {
-  const cards = items.querySelectorAll('jph2-card[selected=true]');
-  cards.forEach((card, index, list) => card.remove());
-}
-
-function selNone() {
-  const cards = items.querySelectorAll('jph2-card[selected=true]');
-  cards.forEach((card, index, list) => card.removeAttribute("selected"));
-}
-
-function selAll() {
-  const cards = items.querySelectorAll('jph2-card');
-  cards.forEach((card, index, list) => card.setAttribute("selected", true));
-}
-</script>
 </html>
