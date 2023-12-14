@@ -1,4 +1,4 @@
-module jph2.tech/chat
+module github.com/JPCodaLot/go-practice/web-transport
 
 go 1.21.4
 

@@ -1,4 +1,4 @@
-module jph2.tech/reptile-generator
+module github.com/JPCodaLot/go-practice/reptile-generator
 
 go 1.21.1
 
